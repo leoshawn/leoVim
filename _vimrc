@@ -152,6 +152,9 @@
 "   > vim-gitgutter - https://github.com/airblade/vim-gitgutter
 "     Show a git diff in the 'gutter' (sign column).
 "     info -> :help gitgutter.txt
+"   > command-t - https://github.com/wincent/Command-T
+"     Open files fast and intuitively
+"     info -> :help command-t
 "
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -306,6 +309,7 @@ if executable('ctags')
 endif
 Bundle 'Shougo/unite.vim'
 Bundle 'scrooloose/nerdtree'
+Bundle 'wincent/Command-T'
 if executable('ag')
     Bundle 'rking/ag.vim'
 elseif executable('ack-grep') || executable('ack')
