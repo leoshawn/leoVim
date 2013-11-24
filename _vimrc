@@ -1,8 +1,6 @@
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 "
-" Maintainer: Xiao-Ou Zhang (kepbod) <kepbod@gmail.com>
-" Created: 2012-01-20
-" Last Modified: 2013-07-21
+" Last Modified: 2013-11-24
 "
 " Sections:
 "   -> General
@@ -272,16 +270,16 @@ Bundle 'gmarik/vundle'
 
 " UI Additions
 Bundle 'w0ng/vim-hybrid'
-"Bundle 'chriskempson/vim-tomorrow-theme'
-"Bundle 'altercation/vim-colors-solarized'
-"Bundle 'nanotech/jellybeans.vim'
+Bundle 'chriskempson/vim-tomorrow-theme'
+Bundle 'altercation/vim-colors-solarized'
+Bundle 'nanotech/jellybeans.vim'
 if has("python") || has("python3")
     Bundle 'Lokaltog/powerline', {'rtp':'/powerline/bindings/vim'}
-    "let airline=0
+    let airline=0
     let old_powerline=0
 else
     Bundle 'bling/vim-airline'
-    "let airline=1
+    let airline=1
     let old_powerline=1
 endif
 Bundle 'nathanaelkane/vim-indent-guides'
@@ -427,9 +425,9 @@ set laststatus=2 " Show the statusline
 set noshowmode " Hide the default mode text
 " Set the style of the status line
 " Use powerline to modify the statuls line
-"if airline==1
-"    let g:airline_powerline_fonts=1
-"endif
+if airline==1
+    let g:airline_powerline_fonts=1
+endif
 if has('gui_running') && (!has('win64') || !has('win32')) && old_powerline == 1
     let g:Powerline_symbols='unicode'
     let g:Powerline_symbols='fancy'
@@ -1112,6 +1110,9 @@ let g:startify_list_order = ['files', 'dir', 'bookmarks', 'sessions']
 "            \'   /_/ |___/_/_/ /_/ /_/ ',
 "            \'                         ',
 "            \]
+
 "let g:startify_custom_footer = "   This configuration is maintained by Xiao-Ou Zhang(kepbod@gmail.com) and other contributors. Thanks!"
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let g:startify_custom_header = [
+            \'Keep it Simple and Stupid. Stay Hungry, Stay Foolish']
