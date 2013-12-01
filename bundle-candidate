@@ -1,0 +1,110 @@
+Bundle 'endel/vim-github-colorscheme'
+Bundle 'molokai'
+Bundle 'altercation/vim-colors-solarized'
+Bundle 'mattn/zencoding-vim'
+
+
+" ********************************************************************************
+" show indentation with vertical lines like the currently highlighted cursorcolumn
+Bundle 'nathanaelkane/vim-indent-guides'
+" set custom indent colors
+"let g:indent_guides_auto_colors = 0
+"autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd  guibg=red   ctermbg=3
+"autocmd VimEnter,Colorscheme * :hi IndentGuidesEven guibg=green ctermbg=4
+" alternatively, the above two lines could be added to colorscheme
+" shortcut for vim-indent-guides toggle is <leader>ig
+" ********************************************************************************
+" Navigation
+Bundle 'terryma/vim-multiple-cursors'
+Bundle 'Lokaltog/vim-easymotion'
+Bundle 'coderifous/textobj-word-column.vim'
+Bundle 'Shougo/unite.vim'
+Bundle 'kien/ctrlp.vim'
+"Bundle 'TxtBrowser'
+if executable('ag')
+    Bundle 'rking/ag.vim'
+elseif executable('ack-grep') || executable('ack')
+    Bundle 'mileszs/ack.vim'
+endif
+if has('ruby')
+    Bundle 'benmills/vimux'
+endif
+
+Bundle 'tsaleh/vim-matchit'
+Bundle 'tpope/vim-abolish'
+Bundle 'AndrewRadev/splitjoin.vim'
+Bundle 'Valloric/YouCompleteMe'
+Bundle 'tpope/vim-speeddating'
+
+" Language related
+Bundle 'sampsyo/autolink.vim'
+Bundle 'wikitopian/hardmode'
+
+Bundle 'less.bat'
+Bundle 'less-syntax'
+Bundle 'Sass'
+Bundle 'groenewege/vim-less'
+Bundle 'kwaledesign/scss-snippets'
+Bundle 'vim-scripts/vim-less'
+Bundle 'aaronjensen/vim-sass-status'
+Bundle 'tpope/vim-sensible'
+Bundle 'tpope/vim-vividchalk'
+Bundle 'vim-scripts/velocity.vim'
+Bundle 'tpope/vim-repeat'
+Bundle 'jistr/vim-nerdtree-tabs'
+
+" Language related
+Bundle 'less.vim'
+Bundle 'tpope/vim-haml'
+Bundle 'cakebaker/scss-syntax.vim'
+Bundle 'chriseppstein/compass'
+Bundle 'tpope/vim-rails'
+Bundle 'tpope/vim-markdown'
+Bundle 'pangloss/vim-javascript'
+Bundle 'lepture/vim-velocity'
+Bundle 'vim-scripts/vm.vim'
+Bundle 'plasticboy/vim-markdown'
+Bundle 'Lokaltog/vim-easymotion'
+Bundle 'phpcomplete.vim'
+Bundle 'php.vim'
+Bundle 'phpcodesniffer.vim'
+Bundle 'php.vim-html-enhanced'
+Bundle 'jQuery'
+Bundle 'css3'
+Bundle 'jsbeautify'
+Bundle 'juvenn/mustache.vim'
+
+" show trailing whitespace and fix it
+Bundle 'bronson/vim-trailing-whitespace'
+
+"if executable('git')
+"    Bundle 'tpope/vim-fugitive'
+"endif
+
+Bundle 'motemen/git-vim'
+
+" Local bundles if avaiable
+if filereadable(expand("~/.vimrc.bundles.local"))
+    source ~/.vimrc.bundles.local
+endif
+"set statusline=%{GitBranch()}
+
+
+
+" Use powerline to modify the statuls line
+if has('gui_running') && (!has('win64') || !has('win32')) && old_powerline == 1
+" let g:Powerline_symbols='unicode'
+  let g:Powerline_symbols='fancy'
+endif
+
+
+set shortmess+=I  "don't give the intro message when starting Vim |:intro|
+
+
+" Use sane regexes
+"nnoremap / /\v
+"vnoremap / /\v
+"cnoremap s/ s/\v
+"nnoremap ? ?\v
+"vnoremap ? ?\v
+"cnoremap s? s?\v
