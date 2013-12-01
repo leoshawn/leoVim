@@ -21,6 +21,7 @@ Bundle 'coderifous/textobj-word-column.vim'
 Bundle 'Shougo/unite.vim'
 Bundle 'kien/ctrlp.vim'
 "Bundle 'TxtBrowser'
+Bundle 'vimwiki'
 if executable('ag')
     Bundle 'rking/ag.vim'
 elseif executable('ack-grep') || executable('ack')
@@ -100,6 +101,8 @@ endif
 
 set shortmess+=I  "don't give the intro message when starting Vim |:intro|
 
+"set list " Show these tabs and spaces and so on
+"set linebreak " Wrap long lines at a blank
 
 " Use sane regexes
 "nnoremap / /\v
@@ -108,3 +111,164 @@ set shortmess+=I  "don't give the intro message when starting Vim |:intro|
 "nnoremap ? ?\v
 "vnoremap ? ?\v
 "cnoremap s? s?\v
+
+
+" Keep search matches in the middle of the window
+nnoremap n nzzzv
+nnoremap N Nzzzv
+nnoremap * *zzzv
+nnoremap # #zzzv
+nnoremap g* g*zzzv
+nnoremap g# g#zzzv
+
+
+" Visual search mappings
+function! s:VSetSearch()
+    let temp=@@
+    normal! gvy
+    let @/='\V'.substitute(escape(@@, '\'), '\n', '\\n', 'g')
+    let @@=temp
+endfunction
+vnoremap * :<C-U>call <SID>VSetSearch()<CR>//<CR>
+vnoremap # :<C-U>call <SID>VSetSearch()<CR>??<CR>
+
+" Use ,Space to toggle the highlight search
+" nnoremap <Leader><Space> :set hlsearch!<CR>
+
+
+" Space to toggle and create folds.
+" nnoremap <silent><Space> @=(foldlevel('.')?'za':"\<Space>")<CR>
+vnoremap <Space> zf
+
+" Set foldtext
+function! MyFoldText()
+    let line=getline(v:foldstart)
+    let nucolwidth=&foldcolumn+&number*&numberwidth
+    let windowwidth=winwidth(0)-nucolwidth-3
+    let foldedlinecount=v:foldend-v:foldstart+1
+    let onetab=strpart('          ', 0, &tabstop)
+    let line=substitute(line, '\t', onetab, 'g')
+    let line=strpart(line, 0, windowwidth-2-len(foldedlinecount))
+    let fillcharcount=windowwidth-len(line)-len(foldedlinecount)
+    return line.'…'.repeat(" ",fillcharcount).foldedlinecount.'…'.' '
+endfunction
+set foldtext=MyFoldText()
+
+
+" file type syntax autocheck
+" Perl
+augroup ft_perl
+    let perl_include_pod=1
+    let perl_extended_vars=1
+    let perl_sync_dist=250
+    autocmd!
+    autocmd filetype perl setlocal keywordprg=perldoc\ -f
+augroup END
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"--------------------------------------------------
+" => Ag(Ack)
+"--------------------------------------------------
+
+if executable('ag')
+    nnoremap <Leader>a :Ag<Space>
+elseif executable('ack-grep') || executable('ack')
+    nnoremap <Leader>a :Ack!<Space>
+endif
+if !executable('ag') && has('unix') && executable('ack-grep')
+    let g:ackprg='ack-grep -H --nocolor --nogroup --column'
+endif
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+
+"--------------------------------------------------
+" => TxtBrowser
+"--------------------------------------------------
+let tlist_txt_settings='txt;c:content;f:figures;t:tables'
+au BufRead,BufNewFile *.txt setlocal ft=txt
+
+
+
+"--------------------------------------------------
+" => Splitjoin
+"--------------------------------------------------
+
+let g:splitjoin_split_mapping = ',k'
+let g:splitjoin_join_mapping = ',j'
+let g:splitjoin_normalize_whitespace=1
+let g:splitjoin_align=1
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+
+"--------------------------------------------------
+" => Unite
+"--------------------------------------------------
+
+nnoremap <Leader>m :Unite<Space>
+let g:unite_update_time=4000
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"--------------------------------------------------
+" => vimux
+"--------------------------------------------------
+
+"nnoremap <Leader>vp :VimuxPromptCommand<CR>
+"vnoremap <Leader>vs "vy :call VimuxRunCommand(@v . "\n", 0)<CR>
+"nnoremap <Leader>vx :VimuxClosePanes<CR>
+"nnoremap <Leader>vq :VimuxCloseRunner<CR>
+"nnoremap <Leader>vi :VimuxInspectRunner<CR>
+"nnoremap <Leader>vl :VimuxRunLastCommand<CR>
+"nnoremap <Leader>vc :VimuxClearRunnerHistory<CR>
+"" Fix bug in ruby 1.9
+"ruby << EOF
+"class Object
+"  def flush; end unless Object.new.respond_to?(:flush)
+"end
+"EOF
+
+
+" highlight current column to help vertical alignment
+"if !has("gui_running")
+"    hi CursorColumn cterm=bold ctermbg=darkred ctermfg=white guibg=darkred guifg=white
+"endif
+
+"set noswapfile
+
+"set autochdir
+" The above autochdir command has problem when working
+"       together with other plugins
+" for Compatible reason, pls use the following command setting instead
+autocmd BufEnter * silent! lcd %:p:h
+
+
+" set up vimwiki configuration
+if has("win32")
+  let $VIMFILES = $VIM.'./vimfiles'
+else
+  let $VIMFILES = $HOME.'./vim'
+endif
+
+" start NERDTree on vimenter
+"autocmd vimenter * NERDTree
+
+let g:startify_custom_header = ["      May The FORCE Be With You! ",
+      \"                 _.-~-.",
+      \"               7''  Q..\\",
+      \"            _7         (_",
+      \"          _7  _/    _q.  /",
+      \"        _7 . ___  /VVvv-'_                                            .",
+      \"       7/ / /~- \\_\\\\      '-._     .-'                      /       //",
+      \"      ./ ( /-~-/||'=.__  '::. '-~'' {             ___   /  //     ./{",
+      \"     V   V-~-~| ||   __''_   ':::.   ''~-~.___.-'' _/  // / {_   /  {  /",
+      \"      VV/-~-~-|/ \\ .'__'. '.    '::                     _ _ _        ''.",
+      \"      / /~~~~||VVV/ /  \\ )  \\        _ __ ___   ___ ___(_) | | __ _   .::'",
+      \"     / (~-~-~\\\\.-' /    \\'   \\::::. | '_ ` _ \\ / _ \\_  / | | |/ _` | :::'",
+      \"    /..\\    /..\\__/      '     '::: | | | | | | (_) / /| | | | (_| | ::'",
+      \"    vVVv    vVVv                 ': |_| |_| |_|\\___/___|_|_|_|\\__,_| ''",
+      \"",
+      \"",
+      \]

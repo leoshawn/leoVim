@@ -1,0 +1,583 @@
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Last Update: 20131131:13:33
+" Sections:
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"------------------------------------------------
+" => General
+"------------------------------------------------
+
+set nocompatible " Get out of VI's compatible mode
+filetype plugin indent on " Enable filetype
+let mapleader=',' " Change the mapleader
+let maplocalleader='\' " Change the maplocalleader
+set timeoutlen=500 " Time to wait for a command
+
+" Source the vimrc file after saving it
+autocmd BufWritePost .vimrc source $MYVIMRC
+" Fast edit the .vimrc file using ',x'
+nnoremap <Leader>x :tabedit $MYVIMRC<CR>
+
+set autoread " Set autoread when a file is changed outside
+set autowrite " Write on make/shell commands
+set hidden " Turn on hidden"
+
+set history=1000 " Increase the lines of history
+set clipboard+=unnamed " Yanks go on clipboard instead
+set spell " Spell checking on
+set modeline " Turn on modeline
+set encoding=utf-8 " Set utf-8 encoding
+set completeopt+=longest " Optimize auto complete
+set completeopt-=preview " Optimize auto complete
+
+set mousehide " Hide mouse after chars typed
+set mouse=a " Mouse in all modes
+
+set backup " Set backup
+set undofile " Set undo
+
+" Set directories
+function! InitializeDirectories()
+   let parent=$HOME
+   let prefix='.vim'
+   let dir_list={
+               \ 'backup': 'backupdir',
+               \ 'view': 'viewdir',
+               \ 'swap': 'directory',
+               \ 'undo': 'undodir'}
+   for [dirname, settingname] in items(dir_list)
+       let directory=parent.'/'.prefix.'/'.dirname.'/'
+       if !isdirectory(directory)
+           if exists('*mkdir')
+               call mkdir(directory)
+                exec 'set '.settingname.'='.directory
+            else
+                echo "Warning: Unable to create directory: ".directory
+                echo "Try: mkdir -p ".directory
+            endif
+        else
+            exec 'set '.settingname.'='.directory
+        endif
+    endfor
+endfunction
+call InitializeDirectories()
+
+autocmd BufWinLeave *.* silent! mkview " Make Vim save view (state) (folds, cursor, etc)
+autocmd BufWinEnter *.* silent! loadview " Make Vim load view (state) (folds, cursor, etc)
+
+" No sound on errors
+set noerrorbells
+set novisualbell
+set t_vb=
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"-------------------------------------------------
+" => Platform Specific Configuration
+"-------------------------------------------------
+
+" On Windows, also use '.vim' instead of 'vimfiles'
+if has('win32') || has('win64')
+    set runtimepath=$HOME/.vim,$VIM/vimfiles,$VIMRUNTIME,$VIM/vimfiles/after,$HOME/.vim/after
+endif
+
+set viewoptions+=slash,unix " Better Unix/Windows compatibility
+set viewoptions-=options " in case of mapping change
+set fileformats=unix,mac,dos " Auto detect the file formats
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"--------------------------------------------------
+" => Plugin
+"--------------------------------------------------
+
+filetype off " Required!
+" makes Vundle use `git` instead default `https` when building absolute repo URIs
+let g:vundle_default_git_proto='git'
+set rtp+=~\vimfiles\bundle\vundle
+call vundle#rc()
+" Let Vundle manage Vundle
+Bundle 'gmarik/vundle'
+
+" UI Additions, colorschemes
+Bundle 'flazz/vim-colorschemes'
+Bundle 'kien/rainbow_parentheses.vim'
+" powerline, enhanced modeline display
+if has("python") || has("python3")
+    Bundle 'Lokaltog/powerline', {'rtp':'/powerline/bindings/vim'}
+    let old_powerline=0
+else
+    Bundle 'Lokaltog/vim-powerline'
+    let old_powerline=1
+endif
+Bundle 'mattn/emmet-vim'
+
+" show indentation with vertical lines
+Bundle 'nathanaelkane/vim-indent-guides'
+" enhanced start screen of vim--such as the recently edited files list
+Bundle 'mhinz/vim-startify'
+Bundle 'scrooloose/nerdtree'
+Bundle 'kien/ctrlp.vim'
+Bundle 'kchmck/vim-coffee-script'
+if executable('git')
+    Bundle 'tpope/vim-fugitive'
+endif
+" 根据等号或其他符号自动对齐
+Bundle 'godlygeek/tabular'
+" 自动注释选中的内容
+Bundle 'scrooloose/nerdcommenter'
+" 快速修改匹配的括号
+Bundle 'tpope/vim-surround'
+" Automatic Helper
+Bundle 'Shougo/neocomplcache'
+Bundle 'Shougo/neosnippet'
+Bundle 'honza/vim-snippets'
+" 自动补全匹配的逗号，引号，括号
+Bundle 'Raimondi/delimitMate'
+" 语法检查
+Bundle 'scrooloose/syntastic'
+
+" Others
+Bundle 'elzr/vim-json'
+let g:vim_json_syntax_conceal = 0
+
+filetype plugin indent on " Required!
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"-------------------------------------------------
+" => Tabular setting up
+"-------------------------------------------------
+if exists(":Tabularize")
+  nmap <Leader>a= : Tabularize /=<CR>
+  nmap <Leader>a= : Tabularize /=<CR>
+  nmap <Leader>a: : Tabularize /:\zs<CR>
+  nmap <Leader>a: : Tabularize /:\zs<CR>
+endif
+
+"call :Tabularize each time you insert a '|'
+inoremap <silent> <Bar>   <Bar><Esc>:call <SID>align()<CR>a
+function! s:align()
+  let p = '^\s*|\s.*\s|\s*$'
+  if exists(':Tabularize') && getline('.') =~# '^\s*|' && (getline(line('.')-1) =~# p || getline(line('.')+1) =~# p)
+    let column = strlen(substitute(getline('.')[0:col('.')],'[^|]','','g'))
+    let position = strlen(matchstr(getline('.')[0:col('.')],'.*|\s*\zs.*'))
+    Tabularize/|/l1
+    normal! 0
+    call search(repeat('[^|]*|',column).'\s\{-\}'.repeat('.',position),'ce',line('.'))
+  endif
+endfunction
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"-------------------------------------------------
+" => Vim User Interface
+"-------------------------------------------------
+
+" Set title
+set title
+set titlestring=%t%(\ %M%)%(\ (%{expand(\"%:p:h\")})%)%(\ %a%)\ -\ %{v:servername}
+
+" Set tabline
+set showtabline=2 " Always show tab line
+" Set up tab labels
+set guitablabel=%m%N:%t\[%{tabpagewinnr(v:lnum)}\]
+set tabline=%!MyTabLine()
+function! MyTabLine()
+    let s=''
+    let t=tabpagenr() " The index of current page
+    let i=1
+    while i<=tabpagenr('$') " From the first page
+      let buflist=tabpagebuflist(i)
+      let winnr=tabpagewinnr(i)
+      let s.=(i==t?'%#TabLineSel#':'%#TabLine#')
+      let s.='%'.i.'T'
+      let s.=' '
+      let bufnr=buflist[winnr - 1]
+      let file=bufname(bufnr)
+      let m=''
+      if getbufvar(bufnr, "&modified")
+          let m='[+]'
+      endif
+      if file=~'\/.'
+          let file=substitute(file,'.*\/\ze.','','')
+      endif
+      if file==''
+        let file='[No Name]'
+      endif
+      let s.=m
+      let s.=i.':'
+      let s.=file
+      let s.='['.winnr.']'
+      let s.=' '
+      let i=i+1
+    endwhile
+    let s.='%T%#TabLineFill#%='
+    let s.=(tabpagenr('$')>1?'%999XX':'X')
+    return s
+  endfunction
+" Set up tab tooltips with every buffer name
+set guitabtooltip=%F
+
+" Set status line
+set laststatus=2 " Show the statusline
+set noshowmode " Hide the default mode text
+" Set the style of the status line
+" Use powerline to modify the statuls line
+if has('gui_running') && (!has('win64') || !has('win32')) && old_powerline == 1
+  let g:Powerline_symbols='fancy'
+endif
+set encoding=utf-8
+set guifont=Consolas\ for\ Powerline\ FixedD:h11
+" Only have cursorline in current window and in normal window
+autocmd WinLeave * set nocursorline
+autocmd WinEnter * set cursorline
+auto InsertEnter * set nocursorline
+auto InsertLeave * set cursorline
+set wildmenu " Show list instead of just completing
+set wildmode=list:longest,full " Use powerful wildmenu
+set shortmess=at " Avoids 'hit enter', a means abbreviation, t means truncate
+" disable the splash welcome screen
+set showcmd " Show cmd
+
+set backspace=indent,eol,start " Make backspaces delete sensibly
+set whichwrap+=h,l,<,>,[,] " Backspace and cursor keys wrap to
+set virtualedit=block,onemore " Allow for cursor beyond last character
+set scrolljump=5 " Lines to scroll when cursor leaves screen
+set scrolloff=3 " Minimum lines to keep above and below cursor
+set sidescroll=1 " Minimal number of columns to scroll horizontally
+set sidescrolloff=10 " Minimal number of screen columns to keep away from cursor
+
+set showmatch " Show matching brackets/parenthesis
+set matchtime=2 " Decrease the time to blink
+
+set number " Show line numbers
+set relativenumber
+
+set formatoptions+=rnlmM " Optimize format options
+set wrap " Set wrap
+set textwidth=80 " Change text width
+set colorcolumn=+1 " Indicate text border
+set list " Show these tabs and spaces and so on
+set linebreak " Wrap long lines at a blank
+
+" Set gVim UI setting
+if has('gui_running')
+    set guioptions-=m
+    set guioptions-=T
+endif
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"-------------------------------------------------
+" => Colors and Fonts
+"-------------------------------------------------
+
+syntax on " Enable syntax
+set background=dark " Set background
+if !has('gui_running')
+    set t_Co=256 " Use 256 colors
+endif
+colorscheme desert
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"-------------------------------------------------
+" => Indent and Tab Related
+"-------------------------------------------------
+
+set autoindent " Preserve current indent on new lines
+set cindent " set C style indent
+set expandtab " Convert all tabs typed to spaces
+set softtabstop=4 " Indentation levels every four columns
+set shiftwidth=4 " Indent/outdent by four columns
+set shiftround " Indent/outdent to nearest tabstop
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"-------------------------------------------------
+" => Search Related
+"-------------------------------------------------
+
+set ignorecase " Case insensitive search
+set smartcase " Case sensitive when uc present
+set hlsearch " Highlight search terms
+set incsearch " Find as you type search
+set gdefault " turn on 'g' flag
+set smartindent
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"-------------------------------------------------
+" => Fold Related
+"-------------------------------------------------
+" all folds closed(value zero), some folds closed(one), no folds closed(99)
+set foldlevelstart=99
+set foldcolumn=1 " Set fold column
+
+vnoremap <Space> zf
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"-------------------------------------------------
+" => Filetype Specific
+"-------------------------------------------------
+
+" QuickFix
+augroup ft_quickfix
+    autocmd!
+    autocmd Filetype qf setlocal colorcolumn=0 nolist nocursorline nowrap textwidth=0
+augroup END
+
+" JSON
+augroup ft_json
+    autocmd!
+" Disable concealing of double quotes
+    autocmd filetype json setlocal conceallevel=0
+" Added folding of {...} and [...] blocks
+    autocmd filetype json setlocal foldmethod=syntax
+augroup END
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"-------------------------------------------------
+" => Key Mapping
+"-------------------------------------------------
+
+" Make j and k work the way you expect
+nnoremap j gj
+nnoremap k gk
+vnoremap j gj
+vnoremap k gk
+
+" Navigation between windows
+nnoremap <C-J> <C-W>j
+nnoremap <C-K> <C-W>k 
+
+" Same when jumping around
+nnoremap g; g;zz
+nnoremap g, g,zz
+
+" Reselect visual block after indent/outdent
+vnoremap < <gv
+vnoremap > >gv
+
+" Repeat last substitution, including flags, with &.
+nnoremap & :&&<CR>
+xnoremap & :&&<CR>
+
+" Keep the cursor in place while joining lines
+nnoremap J mzJ`z
+
+" Select entire buffer
+nnoremap vaa ggvGg_
+nnoremap Vaa ggVG
+
+" See the differences between the current buffer and the file it was loaded from
+command! DiffOrig vert new | set bt=nofile | r ++edit # | 0d_
+    \ | diffthis | wincmd p | diffthis
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"--------------------------------------------------
+" => Local Setting
+"--------------------------------------------------
+
+" Use local vimrc if available
+if filereadable(expand("~/.vimrc.local"))
+    source ~/.vimrc.local
+endif
+
+" Use local gvimrc if available and gui is running
+if has('gui_running')
+    if filereadable(expand("~/.gvimrc.local"))
+        source ~/.gvimrc.local
+    endif
+endif
+
+
+"--------------------------------------------------
+" => NERD_tree
+"--------------------------------------------------
+
+nnoremap <Leader>d :NERDTreeTabsToggle<CR>
+nnoremap <Leader>f :NERDTreeFind<CR>
+let NERDTreeChDirMode=2
+let NERDTreeShowBookmarks=1
+" Let NERDTree show hidden files, 0--no, 1--yes
+let NERDTreeShowHidden=0
+let NERDTreeShowLineNumbers=1
+let NERDTreeDirArrows=1
+let g:nerdtree_tabs_open_on_gui_startup=0
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"--------------------------------------------------
+" => NERD_commenter
+"--------------------------------------------------
+
+let NERDCommentWholeLinesInVMode=2
+let NERDSpaceDelims=1
+let NERDRemoveExtraSpaces=1
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"--------------------------------------------------
+" => Neocomplcache
+"--------------------------------------------------
+
+let g:neocomplcache_enable_at_startup=1
+let g:neocomplcache_enable_auto_delimiter=1
+let g:neocomplcache_enable_camel_case_completion=1
+let g:neocomplcache_enable_underbar_completion=1
+
+let g:snips_author='Xiao-Ou Zhang <kepbod@gmail.com>'
+
+" Tell Neosnippet about the other snippets
+let g:neosnippet#snippets_directory="$HOME/.vim/bundle/vim-snippets/snippets"
+let g:neosnippet#enable_snipmate_compatibility=1
+
+" Plugin key-mappings
+imap <C-K> <Plug>(neosnippet_expand_or_jump)
+smap <C-K> <Plug>(neosnippet_expand_or_jump)
+xmap <C-K> <Plug>(neosnippet_expand_target)
+
+" Map <C-E> to cancel completion
+inoremap <expr><C-E> neocomplcache#cancel_popup()
+
+" SuperTab like snippets behavior
+inoremap <expr><Tab> neosnippet#expandable() ? "\<Plug>(neosnippet_expand_or_jump)" : pumvisible() ? "\<C-N>" : "\<Tab>"
+snoremap <expr><Tab> neosnippet#expandable() ? "\<Plug>(neosnippet_expand_or_jump)" : "\<Tab>"
+inoremap <expr><S-Tab> pumvisible() ? "\<C-P>" : "\<S-Tab>"
+
+" CR/S-CR: close popup and save indent
+inoremap <expr><CR> delimitMate#WithinEmptyPair() ? "\<C-R>=delimitMate#ExpandReturn()\<CR>" : pumvisible() ? neocomplcache#close_popup() : "\<CR>"
+inoremap <expr><S-CR> pumvisible() ? neocomplcache#close_popup() "\<CR>" : "\<CR>"
+
+" For snippet_complete marker
+if has('conceal')
+    set conceallevel=2 concealcursor=i
+endif
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"--------------------------------------------------
+" => delimitMate
+"--------------------------------------------------
+
+let delimitMate_expand_cr=1
+let delimitMate_expand_space=1
+let delimitMate_balance_matchpairs=1
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"--------------------------------------------------
+" => Ctrlp
+"--------------------------------------------------
+
+let g:ctrlp_working_path_mode=0
+let g:ctrlp_clear_cache_on_exit=0
+let g:ctrlp_cache_dir=$HOME.'/.vim/.cache/ctrlp'
+let g:ctrlp_extensions=['tag', 'buffertag', 'quickfix', 'dir', 'rtscript']
+
+
+"--------------------------------------------------
+" => Syntastic
+"--------------------------------------------------
+
+nnoremap <Leader>s :Errors<CR>
+let g:syntastic_check_on_open=1
+let g:syntastic_auto_jump=1
+let g:syntastic_stl_format='[%E{Err: %fe #%e}%B{, }%W{Warn: %fw #%w}]'
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"--------------------------------------------------
+" => Indent Guides
+"--------------------------------------------------
+
+if !has('gui_running')
+    let g:indent_guides_auto_colors=0
+    autocmd VimEnter,Colorscheme * :hi IndentGuidesOdd ctermbg=237
+    autocmd VimEnter,Colorscheme * :hi IndentGuidesEven ctermbg=239
+endif
+
+let g:indent_guides_enable_on_vim_startup=1
+let g:indent_guides_guide_size=1
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+"--------------------------------------------------
+" => fugitive
+"--------------------------------------------------
+
+if executable('git')
+    nnoremap <silent> <leader>gs :Gstatus<CR>
+    nnoremap <silent> <leader>gd :Gdiff<CR>
+    nnoremap <silent> <leader>gc :Gcommit<CR>
+    nnoremap <silent> <leader>gb :Gblame<CR>
+    nnoremap <silent> <leader>gl :Glog<CR>
+    nnoremap <silent> <leader>gp :Git push<CR>
+endif
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" customized for my specific requirements"
+let &termencoding=&encoding
+" set file encoding supports Chinese
+set fileencodings=ucs-bom,utf-8,gb2312,gbk,gb18030,cp936 
+map <F10> :e $MYVIMRC<CR>
+" set F9 for source vimrc modifications
+map <F9> :so $MYVIMRC<CR>
+" set F5 for reloading the original file
+map <F5> :e!<CR>
+" map F4 to find current file directory in NERDTree
+nmap <F4> :NERDTreeFind<CR>
+" map F3 to open NERDTree
+nmap <F3> :NERDTreeToggle<CR>
+" map F2 to cancel search highlight
+nmap <F2> :nohlsearch<CR>
+" map F6 to save the current file
+nmap <F6> :w<CR>
+
+set fdm=indent
+" highlight current line
+set cursorline
+" highlight current line shadow instead of underline
+if !has("gui_running")
+    hi CursorLine term=bold cterm=bold guibg=Grey40
+endif
+" set autochange to current dir
+autocmd BufEnter * silent! lcd %:p:h
+" 设置gvim启动时自动窗口最大化
+au GUIEnter * simalt ~x
+
+"解决菜单乱码
+source $VIMRUNTIME/delmenu.vim
+source $VIMRUNTIME/menu.vim
+
+"解决consle输出乱码
+language messages zh_CN.utf-8
+set encoding=utf-8 " Set default encoding to UTF-8
+set langmenu=zh_CN.utf-8
+language messages zh_CN.utf-8
+
+" turn off automatic syntastic check
+let g:syntastic_check_on_open=0
+let g:syntastic_check_on_wq=0
+set cursorcolumn
+
+" map F7 to compile coffeescript
+nmap <F7> :CoffeeWatch<CR>
+" To fold by indentation in CoffeeScript files
+au BufNewFile,BufReadPost *.coffee setl foldmethod=indent nofoldenable
+"quickly toggled fold per-file by hitting zi.
+"To enable folding by default, remove nofoldenable
+au BufNewFile,BufReadPost *.coffee setl foldmethod=indent
+" To get standard two-space indentation in CoffeeScript files
+au BufNewFile,BufReadPost *.coffee setl shiftwidth=2 expandtab
+
+" Add support for markdown
+augroup mkd
+    autocmd BufRead *.mkd  set ai formatoptions=tcroqn2 comments=n:>
+augroup END
+" Share the same purpose as above(support markdown format files)
+au BufRead,BufNewFile *.md set filetype=markdown
+
+let g:startify_custom_header = ["      May The FORCE Be With You! "]
