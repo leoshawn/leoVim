@@ -1,5 +1,5 @@
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Last Update: 20131131:13:33
+" Last Update: 20131131:17:03
 " Sections:
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -138,6 +138,7 @@ Bundle 'Raimondi/delimitMate'
 Bundle 'scrooloose/syntastic'
 
 " Others
+Bundle 'PIV'
 Bundle 'elzr/vim-json'
 let g:vim_json_syntax_conceal = 0
 
@@ -258,8 +259,6 @@ set formatoptions+=rnlmM " Optimize format options
 set wrap " Set wrap
 set textwidth=80 " Change text width
 set colorcolumn=+1 " Indicate text border
-set list " Show these tabs and spaces and so on
-set linebreak " Wrap long lines at a blank
 
 " Set gVim UI setting
 if has('gui_running')
@@ -581,3 +580,21 @@ augroup END
 au BufRead,BufNewFile *.md set filetype=markdown
 
 let g:startify_custom_header = ["      May The FORCE Be With You! "]
+
+
+" Use sane regexes
+nnoremap / /\v
+vnoremap / /\v
+cnoremap s/ s/\v
+nnoremap ? ?\v
+vnoremap ? ?\v
+cnoremap s? s?\v
+
+
+" Keep search matches in the middle of the window
+nnoremap n nzzzv
+nnoremap N Nzzzv
+nnoremap * *zzzv
+nnoremap # #zzzv
+nnoremap g* g*zzzv
+nnoremap g# g#zzzv
