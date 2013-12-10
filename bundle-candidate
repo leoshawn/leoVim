@@ -22,6 +22,7 @@ Bundle 'Shougo/unite.vim'
 Bundle 'kien/ctrlp.vim'
 "Bundle 'TxtBrowser'
 Bundle 'vimwiki'
+Bundle 'PIV'
 if executable('ag')
     Bundle 'rking/ag.vim'
 elseif executable('ack-grep') || executable('ack')
